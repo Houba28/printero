@@ -11,12 +11,14 @@
 """
 
 import os
-# import printcore ???
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, send_from_directory
 from werkzeug.utils import secure_filename
 
+# importing printcore
+from printrun.printcore import printcore
+from printrun import gcoder
 
 app = Flask(__name__)
 
@@ -80,6 +82,28 @@ def show_entries():
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
 
+def connect(port="/dev/ttyUSB0", baud="250000"):
+	print("connected")
+        p=printcore(port,baud)
+
+def disconnect():
+	if(p):
+		p.disconnect()
+
+def pause():
+	if(p):
+		p.pause()
+def resume():
+	if(p):
+		p.resume()
+
+def startprint(gcode):
+	if(p):
+		p.startprint(gcode)
+
+def getgcode(name):
+	gcode = [i.strip() for i in open(name+'.gcode')]
+	gcode = gcoder.LightGCode(gcode)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
