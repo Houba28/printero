@@ -51,6 +51,29 @@ def init_db():
         db.cursor().executescript(f.read())
     db.commit()
 
+def connect(port="/dev/ttyUSB0", baud="250000"):
+	print("connected")
+        p=printcore(port,baud)
+
+def disconnect():
+	if(p):
+		p.disconnect()
+
+def pause():
+	if(p):
+		p.pause()
+def resume():
+	if(p):
+		p.resume()
+
+def startprint(gcode):
+	if(p):
+		p.startprint(gcode)
+
+def getgcode(name):
+	gcode = [i.strip() for i in open(name+'.gcode')]
+	gcode = gcoder.LightGCode(gcode)
+
 
 @app.cli.command('initdb')
 def initdb_command():
@@ -81,29 +104,6 @@ def show_entries():
     cur = db.execute('select name, up_date, size from things order by id desc')
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
-
-def connect(port="/dev/ttyUSB0", baud="250000"):
-	print("connected")
-        p=printcore(port,baud)
-
-def disconnect():
-	if(p):
-		p.disconnect()
-
-def pause():
-	if(p):
-		p.pause()
-def resume():
-	if(p):
-		p.resume()
-
-def startprint(gcode):
-	if(p):
-		p.startprint(gcode)
-
-def getgcode(name):
-	gcode = [i.strip() for i in open(name+'.gcode')]
-	gcode = gcoder.LightGCode(gcode)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
