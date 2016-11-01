@@ -12,7 +12,7 @@
 
 import os
 from sqlite3 import dbapi2 as sqlite3
-from flask import Flask, request, session, g, redirect, url_for, abort, \
+from flask import Flask, jsonify, request, session, g, redirect, url_for, abort, \
      render_template, flash, send_from_directory
 from werkzeug.utils import secure_filename
 
@@ -33,6 +33,8 @@ app.config.update(dict(
 ))
 UPLOAD_FOLDER = './uploads/',
 ALLOWED_EXTENSIONS = set(['gcode'])
+PRINTER = None
+GCODE = None
 
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -51,28 +53,31 @@ def init_db():
         db.cursor().executescript(f.read())
     db.commit()
 
-def connect(port="/dev/ttyUSB0", baud="250000"):
-	print("connected")
-        p=printcore(port,baud)
+@app.route('/_connect.html')
+def connect(port="/dev/ttyACM0", baud="250000"):
+        PRINTER=printcore(port,baud)
+	f = open('return.err', 'w')
+	f.write('pripojeno :)\n')
+	return jsonify("connected")
 
 def disconnect():
-	if(p):
-		p.disconnect()
+	if(PRINTER):
+		PRINTER.disconnect()
 
 def pause():
-	if(p):
-		p.pause()
+	if(PRINTER):
+		PRINTER.pause()
 def resume():
-	if(p):
-		p.resume()
+	if(PRINTER):
+		PRINTER.resume()
 
 def startprint(gcode):
-	if(p):
-		p.startprint(gcode)
+	if(PRINTER):
+		PRINTER.startprint(gcode)
 
 def getgcode(name):
-	gcode = [i.strip() for i in open(name+'.gcode')]
-	gcode = gcoder.LightGCode(gcode)
+	GCODE = [i.strip() for i in open(name+'.gcode')]
+	GCODE = gcoder.LightGCode(gcode)
 
 
 @app.cli.command('initdb')
