@@ -22,7 +22,7 @@ picamera==1.12
 pifacecommon==4.2.1
 pifacedigitalio==3.1.0
 pigpio==1.30
-psutil==2.1.1
+psutil==5.6.6
 pyOpenSSL==0.13.1
 pyasn1==0.1.7
 pygame==1.9.2a0
